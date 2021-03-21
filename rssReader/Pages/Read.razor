@@ -1,0 +1,29 @@
+﻿@page "/read"
+<h3>Reader</h3>
+
+<div class="container">
+    <input class="input-group-lg" @bind="feedLink" />
+    <button class="btn-light btn-outline-primary" @onclick="ButtonReadOnClick">Read</button>
+</div>
+@if (canRead)
+{
+    foreach (FeedItem item in parsedItems.Items)
+    {
+        <FeedItemComponent Title="@item.Title" Description="@item.Description" Link="@item.Link" />
+    }
+}
+
+@code {
+    private string feedLink { get; set; } = "";
+    private bool canRead = false;
+    private Feed parsedItems = null;
+
+    private async Task ButtonReadOnClick()
+    {
+        if (feedLink != null)
+        {
+            parsedItems = await FeedReader.ReadAsync(feedLink);
+            canRead = true;
+        }
+    }
+}
