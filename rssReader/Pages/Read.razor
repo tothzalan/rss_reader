@@ -1,4 +1,6 @@
 ﻿@page "/read"
+@inject LocalStorageService Storage
+
 <h3>Reader</h3>
 
 <div class="container">
@@ -14,16 +16,31 @@
 }
 
 @code {
+    const string key = "lastFeed";
+
     private string feedLink { get; set; } = "";
     private bool canRead = false;
     private Feed parsedItems = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetValue();
+    }
     private async Task ButtonReadOnClick()
     {
         if (feedLink != null)
         {
             parsedItems = await FeedReader.ReadAsync(feedLink);
+            await SetValue();
             canRead = true;
         }
+    }
+    async Task SetValue()
+    {
+        await Storage.SetLocalStorage(key, feedLink);
+    }
+    async Task GetValue()
+    {
+        feedLink = await Storage.GetFromLocalStorage(key);
     }
 }
