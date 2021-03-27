@@ -1,0 +1,38 @@
+﻿@page "/multiple"
+
+<h3>Multiple feed reader</h3>
+
+@if (canRead)
+{
+    for (int i = 0; i < parsedItems.Length; i++)
+    {
+        <h5>Feed from: @parsedItems[i].Link</h5>
+        foreach (FeedItem item in parsedItems[i].Items)
+        {
+            <FeedItemComponent Title="@item.Title" Description="@item.Description" Link="@item.Link" />
+        }
+    }
+}
+else
+{
+    <textarea @bind="input" placeholder="Separate links with whitespace" cols="80" rows="10" />
+    <br />
+    <button @onclick="SendButtonOnClick">Send</button>
+}
+
+@code {
+    bool canRead = false;
+    string input = "";
+    Feed[] parsedItems = null;
+
+    private async Task SendButtonOnClick()
+    {
+        string[] data = input.Split(new[] { ' ', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+        parsedItems = new Feed[data.Length];
+        for (int i = 0; i < data.Length; i++)
+        {
+            parsedItems[i] = await FeedReader.ReadAsync(data[i]);
+        }
+        canRead = true;
+    }
+}
